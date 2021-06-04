@@ -10,10 +10,10 @@ import { name } from "./package.json";
 
 export default [
   {
-    input: "src/index.jsx",
+    input: "build/index.js",
     output: [
       {
-        file: `esm/${name}.jsx`,
+        file: `esm/${name}.js`,
         format: "esm",
       },
     ],
