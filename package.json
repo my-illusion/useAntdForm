@@ -1,6 +1,6 @@
 {
   "name": "use-antd-form",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "framework for library  develop",
   "main": "index.js",
   "module": "esm/use-antd-form.jsx",
