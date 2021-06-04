@@ -63,9 +63,6 @@ type SelectOption = Array<number> | Array<string> | Array<{ key?: string | numbe
 type InferArray<T> = T extends Array<infer P> ? P : null
 
 const { Item: FormItem } = Form;
-const { Option } = Select;
-
-
 
 const DefaultFormItemFactory = (config: FormConfig) => {
     switch(config.type) {
@@ -92,29 +89,64 @@ const DefaultFormItemFactory = (config: FormConfig) => {
             )
             
         case 'Select':
+        case 'RadioGroup':
             const { option, ...restItemProps } = config.ItemProps[0]
+            const {Parent, Child} = ({
+                Select: {
+                    Parent: Select,
+                    Child: Select.Option
+                },
+                RadioGroup: {
+                    Parent: Radio.Group,
+                    Child: Radio.Button
+                }
+            })[config.type]
             return (
                 <FormItem {...config.FormItemProps}>
-                    <Select {...restItemProps}>
+                    <Parent {...restItemProps}>
                         {
                             ((option || []) as Array<any>).map((item: InferArray<SelectOption>) => {
                                 if(!(item instanceof Object)) {
                                     return (
-                                        <Option key={item} value={item}>
+                                        <Child key={item} value={item}>
                                             {item}
-                                        </Option>
+                                        </Child>
                                     )
                                 }
                                 return (
-                                    <Option key={item.key || item.value} value={item.value}>
+                                    <Child key={item.key || item.value} value={item.value}>
                                         {item.value}
-                                    </Option>
+                                    </Child>
                                 )
                             })
                         }
-                    </Select>
+                    </Parent>
                 </FormItem>
             )
+        // case 'RadioGroup':
+        //     const { option, ...restItemProps } = config.ItemProps[0]
+        //     return (
+        //         <FormItem {...config.FormItemProps}>
+        //             <Select {...restItemProps}>
+        //                 {
+        //                     ((option || []) as Array<any>).map((item: InferArray<SelectOption>) => {
+        //                         if(!(item instanceof Object)) {
+        //                             return (
+        //                                 <Option key={item} value={item}>
+        //                                     {item}
+        //                                 </Option>
+        //                             )
+        //                         }
+        //                         return (
+        //                             <Option key={item.key || item.value} value={item.value}>
+        //                                 {item.value}
+        //                             </Option>
+        //                         )
+        //                     })
+        //                 }
+        //             </Select>
+        //         </FormItem>
+        //     )
         default:
             return null
     }
