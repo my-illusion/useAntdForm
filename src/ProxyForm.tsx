@@ -28,6 +28,8 @@ enum ComponentTypeMap {
   InputNumber,
   TreeSelect,
   FormList,
+  Custome, // 自定义的form组件
+  Children
 }
 
 const ComponentMap = {
@@ -54,6 +56,7 @@ interface FormConfig {
   FormItemProps: FormItemProps & StyleConfig;
   ItemProps: Array<ItemPropsSub>;
   render?: FormListProps["children"];
+  component?: React.ReactNode;
 }
 
 type StyleConfig = {
@@ -145,7 +148,24 @@ const DefaultFormItemFactory = (config: FormConfig) => {
             config.render && config.render(fields, operation, meta)}
         </Form.List>
       );
-    default:
+    case "Custome":
+      if(!config.component || React.isValidElement(config.component)) return null
+      const customeChild = config.ItemProps.map((item, index) => {
+        const { children, ...restProps } = item;
+        const TempComponent = config.component as React.ElementType
+        return (
+          <TempComponent key={item.key || index} {...restProps}>
+            {children}
+          </TempComponent>
+        );
+      });
+
+      const _customeChild = customeChild.length === 1 ? customeChild[0] : customeChild;
+      return <FormItem {...config.FormItemProps}>{_customeChild}</FormItem>;
+    case "Children":
+      if(!config.component || React.isValidElement(config.component)) return null
+      return <FormItem {...config.FormItemProps}>{config.component}</FormItem>;
+      default:
       return null;
   }
 };
