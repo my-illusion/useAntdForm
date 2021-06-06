@@ -17,6 +17,8 @@ import {
 
 import type { FormListProps } from "antd/lib/form/FormList";
 
+const { RangePicker, TimePicker } = DatePicker;
+
 enum ComponentTypeMap {
   Input,
   Select,
@@ -29,7 +31,9 @@ enum ComponentTypeMap {
   TreeSelect,
   FormList,
   Custome, // 自定义的form组件
-  Children
+  Children,
+  RangePicker,
+  TimePicker
 }
 
 const ComponentMap = {
@@ -43,6 +47,8 @@ const ComponentMap = {
   TreeSelect,
   InputNumber,
   FormList: Form.List,
+  RangePicker,
+  TimePicker,
 };
 
 type ComponentType = keyof typeof ComponentTypeMap;
@@ -57,6 +63,7 @@ interface FormConfig {
   ItemProps: Array<ItemPropsSub>;
   render?: FormListProps["children"];
   component?: React.ReactNode;
+  isFunc?: boolean;
 }
 
 type StyleConfig = {
@@ -83,6 +90,16 @@ type InferArray<T> = T extends Array<infer P> ? P : null;
 
 const { Item: FormItem } = Form;
 
+const isValidElement = (component: React.ReactNode, isFunc: boolean): React.ReactNode => {
+  if(!component || typeof component !== 'function') return null;
+  if(isFunc) {
+    return component();
+  }else{
+    return component;
+  }
+  return null;
+}
+
 const DefaultFormItemFactory = (config: FormConfig) => {
   switch (config.type) {
     case "Input":
@@ -92,6 +109,8 @@ const DefaultFormItemFactory = (config: FormConfig) => {
     case "DatePicker":
     case "InputNumber":
     case "TreeSelect":
+    case "RangePicker":
+    case "TimePicker":
       const Component: React.ElementType = ComponentMap[config.type];
       const child = config.ItemProps.map((item, index) => {
         const { children, ...restProps } = item;
@@ -163,8 +182,9 @@ const DefaultFormItemFactory = (config: FormConfig) => {
       const _customeChild = customeChild.length === 1 ? customeChild[0] : customeChild;
       return <FormItem {...config.FormItemProps}>{_customeChild}</FormItem>;
     case "Children":
-      if(!config.component || React.isValidElement(config.component)) return null
-      return <FormItem {...config.FormItemProps}>{config.component}</FormItem>;
+      const ValidElement = isValidElement(config.component, !!config.isFunc)
+      if(!ValidElement) return null
+      return <FormItem {...config.FormItemProps}>{ValidElement}</FormItem>;
       default:
       return null;
   }
