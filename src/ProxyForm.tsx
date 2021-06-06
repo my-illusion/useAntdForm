@@ -1,15 +1,8 @@
 import React, { FC } from "react";
 import {
   Form,
-  Input,
   Select,
-  Button,
-  Checkbox,
-  Switch,
   Radio,
-  DatePicker,
-  InputNumber,
-  TreeSelect,
   FormInstance,
   FormItemProps,
   FormProps,
@@ -17,7 +10,7 @@ import {
 
 import type { FormListProps } from "antd/lib/form/FormList";
 
-const { RangePicker, TimePicker } = DatePicker;
+// const { RangePicker, TimePicker } = DatePicker;
 
 enum ComponentTypeMap {
   Input,
@@ -36,20 +29,20 @@ enum ComponentTypeMap {
   TimePicker
 }
 
-const ComponentMap = {
-  Input,
-  Select,
-  Checkbox,
-  Button,
-  DatePicker,
-  Switch,
-  RadioGroup: Radio.Group,
-  TreeSelect,
-  InputNumber,
-  FormList: Form.List,
-  RangePicker,
-  TimePicker,
-};
+// const ComponentMap = {
+//   Input,
+//   Select,
+//   Checkbox,
+//   Button,
+//   DatePicker,
+//   Switch,
+//   RadioGroup: Radio.Group,
+//   TreeSelect,
+//   InputNumber,
+//   FormList: Form.List,
+//   RangePicker,
+//   TimePicker,
+// };
 
 type ComponentType = keyof typeof ComponentTypeMap;
 
@@ -74,6 +67,7 @@ export type IProps<T> = {
   config: {
     formProps: FormProps<T> & StyleConfig;
     itemProps: Array<FormConfig>;
+    ComponentMap: Record<string, React.ReactElement>
   };
 };
 
@@ -100,7 +94,7 @@ const isValidElement = (component: React.ReactNode, isFunc: boolean): React.Reac
   return null;
 }
 
-const DefaultFormItemFactory = (config: FormConfig) => {
+const DefaultFormItemFactory = (config: FormConfig, ComponentMap: Record<string, React.ReactNode>) => {
   switch (config.type) {
     case "Input":
     case "Checkbox":
@@ -111,7 +105,7 @@ const DefaultFormItemFactory = (config: FormConfig) => {
     case "TreeSelect":
     case "RangePicker":
     case "TimePicker":
-      const Component: React.ElementType = ComponentMap[config.type];
+      const Component = ComponentMap[config.type] as React.ElementType;
       const child = config.ItemProps.map((item, index) => {
         const { children, ...restProps } = item;
         return (
@@ -191,13 +185,13 @@ const DefaultFormItemFactory = (config: FormConfig) => {
 };
 
 const ProxyForm: FC<ProxyFormProps<any>> = function ProxyForm({
-  config = { formProps: {}, itemProps: [] },
+  config = { formProps: {}, itemProps: [], ComponentMap: {} },
   form,
 }) {
   return (
     <Form form={form} {...config.formProps}>
       {React.Children.map(
-        config.itemProps.map((item) => DefaultFormItemFactory(item)),
+        config.itemProps.map((item) => DefaultFormItemFactory(item, config.ComponentMap)),
         (i) => i
       )}
     </Form>
