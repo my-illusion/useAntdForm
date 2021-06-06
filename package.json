@@ -2,8 +2,9 @@
   "name": "use-antd-form",
   "version": "0.0.1",
   "description": "framework for library  develop",
-  "main": "index.js",
-  "module": "esm/use-antd-form.jsx",
+  "main": "build/index.js",
+  "module": "build/index.js",
+  "sideEffects": false,
   "scripts": {
     "build": "tsc && rollup --config",
     "tsc": "tsc",
